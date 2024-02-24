@@ -42,7 +42,14 @@ exports.postRegister = async (req, res) => {
     }
 };
 
+// authController.js
+
 exports.logout = (req, res) => {
-    req.logout();
-    res.redirect('/login');
+    req.logout((err) => {
+        if (err) {
+            console.error('Error logging out:', err);
+            return res.redirect('/login'); // Redirect to homepage or login page as needed
+        }
+        res.redirect('/login');
+    });
 };
