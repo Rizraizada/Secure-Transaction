@@ -1,27 +1,9 @@
+// routes/authRoutes.js
 const express = require('express');
-const bodyParser = require('body-parser');
-const session = require('express-session');
 const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
-const path = require('path');
 const mysql = require('mysql');
+
 const router = express.Router();
-
-const app = express();
-const PORT = process.env.PORT || 3000;
-
-// Middleware
-app.use(bodyParser.urlencoded({ extended: true }));
-
-// Session configuration
-app.use(session({
-  secret: 'secret-key', // Change this to a random secret key
-  resave: false,
-  saveUninitialized: true
-}));
-
-// Serve static files from the public folder
-app.use(express.static('public'));
 
 // MySQL connection
 const connection = mysql.createConnection({
@@ -33,28 +15,27 @@ const connection = mysql.createConnection({
 
 connection.connect(err => {
   if (err) {
-    console.error('Error connecting to MySQL database:', err.message);
+    console.error('Error connecting to MySQL database');
     return;
   }
   console.log('Connected to MySQL database');
 });
 
-// Register a new user
-app.post('/auth/register', (req, res) => {
+router.post('/register', (req, res) => {
   const { username, password, role } = req.body;
 
   bcrypt.hash(password, 10, (err, hash) => {
     if (err) {
-      console.error('Error hashing password:', err.message);
-      res.status(500).send('Internal Server Error');
+      console.error('Error hashing password');
+      res.sendStatus(500);
       return;
     }
 
     const newUser = { username, password: hash, role };
     connection.query('INSERT INTO users SET ?', newUser, (err, result) => {
       if (err) {
-        console.error('Error registering user:', err.message);
-        res.status(500).send('Internal Server Error');
+        console.error('Error registering user');
+        res.sendStatus(500);
         return;
       }
       res.sendStatus(201);
@@ -62,39 +43,44 @@ app.post('/auth/register', (req, res) => {
   });
 });
 
-// Define route for serving admin dashboard
-app.get('/admin', authenticateToken, (req, res) => {
-  if (req.session.user && req.session.user.role === 'admin') {
-    res.sendFile(path.join(__dirname, 'public', 'admin', 'index.html'));
-  } else {
-    res.redirect('/auth/login');
-  }
+router.post('/login', (req, res) => {
+    const { username, password } = req.body;
+  
+    connection.query('SELECT * FROM users WHERE username = ?', [username], (err, rows) => {
+      if (err) {
+        console.error('Error fetching user');
+        res.sendStatus(500);
+        return;
+      }
+  
+      if (rows.length === 0) {
+        res.status(401).send('Invalid username or password');
+        return;
+      }
+  
+      const user = rows[0];
+      bcrypt.compare(password, user.password, (err, result) => {
+        if (err) {
+          console.error('Error comparing passwords');
+          res.sendStatus(500);
+          return;
+        }
+        if (result) {
+          // Check if the user is an admin
+          if (user.role === 'admin') {
+            // Redirect to admin dashboard
+            res.redirect('/admin/index.html');
+          } else {
+            // Redirect to user dashboard
+            res.redirect('/admin/index2.html');
+          }
+        } else {
+          res.status(401).send('Invalid username or password');
+        }
+      });
+    });
 });
 
-// Define route for serving user dashboard
-app.get('/user', authenticateToken, (req, res) => {
-  if (req.session.user && req.session.user.role === 'user') {
-    res.sendFile(path.join(__dirname, 'public', 'user', 'index2.html'));
-  } else {
-    res.redirect('/auth/login');
-  }
-});
-
-// Middleware to verify JWT token and set user data in session
-function authenticateToken(req, res, next) {
-  const token = req.session.token;
-  if (token == null) return res.sendStatus(401);
-
-  jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
-    if (err) return res.sendStatus(403);
-    req.session.user = user;
-    next();
-  });
-}
-
-// Start server
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-});
+  
 
 module.exports = router;
