@@ -1,29 +1,4 @@
-<!-- <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>User Registration</title>
-</head>
-<body>
-    <h1>User Registration</h1>
-    <form action="/auth/register" method="post">
-        <label for="username">Username:</label>
-        <input type="text" id="username" name="username" required>
-        <br>
-        <label for="password">Password:</label>
-        <input type="password" id="password" name="password" required>
-        <br>
-        <label for="role">Role:</label>
-        <select id="role" name="role">
-            <option value="user">User</option>
-            <option value="admin">Admin</option>
-        </select>
-        <br>
-        <button type="submit">Register</button>
-    </form>
-</body>
-</html> -->
+ 
 <!DOCTYPE html>
 <html lang="en">
 
@@ -205,41 +180,37 @@
 
                 <h3  style="margin: 10px;"> Secure Money Transactions Bank Registration form</h3>
             </div>
-
-          <form action="/auth/register" method="post" class="form-body"  onsubmit="validateForm(event)">
-            
+            <form id="registrationForm" action="/auth/register" method="post" class="form-body" enctype="multipart/form-data">
                 <div class="form-title row">
                     <h4>Personal Information:</h4>
                 </div>
-
+            
                 <div class="form-row row">
                     <div class="col-lg-2 col-md-4">
-                        <label for="">First Name</label>
+                        <label for="username">First Name</label>
                         <sup class="req">*</sup>
                         <span class="indc">:</span>
                     </div>
                     <div class="col-lg-4 col-md-8">
-                        <input type="text" placeholder="Enter First Name" class="form-control form-control-sm"
-                            required>
+                        <input type="text" id="username" name="username" placeholder="Enter First Name" class="form-control form-control-sm" required>
                     </div>
                     <div class="col-lg-2 col-md-4">
-                        <label for="">Last Name</label>
+                        <label for="last_name">Last Name</label>
                         <span class="indc">:</span>
                     </div>
                     <div class="col-lg-4 col-md-8">
-                        <input type="text" placeholder="Enter Last Name" class="form-control form-control-sm">
+                        <input type="text" id="last_name" name="last_name" placeholder="Enter Last Name" class="form-control form-control-sm">
                     </div>
                 </div>
-
+            
                 <div class="form-row row">
                     <div class="col-lg-2 col-md-4">
-                        <label for="dob">Date of Birth</label>
+                        <label for="date_of_birth">Date of Birth</label>
                         <sup class="req">*</sup>
                         <span class="indc">:</span>
                     </div>
                     <div class="col-lg-4 col-md-8">
-                        <input type="text" id="dob" placeholder="Enter Date of Birth"
-                            class="form-control form-control-sm">
+                        <input type="date" id="date_of_birth" name="date_of_birth" placeholder="Enter Date of Birth" class="form-control form-control-sm" required>
                     </div>
                     <div class="col-lg-2 col-md-4">
                         <label for="gender">Gender</label>
@@ -247,7 +218,7 @@
                         <span class="indc">:</span>
                     </div>
                     <div class="col-lg-4 col-md-8 pt-1 select-wrapper">
-                        <select id="gender" class="form-control form-control-sm">
+                        <select id="gender" name="gender" class="form-control form-control-sm" required>
                             <option value="" selected disabled hidden>Select Gender</option>
                             <option value="male">Male</option>
                             <option value="female">Female</option>
@@ -255,275 +226,149 @@
                         </select>
                     </div>
                 </div>
-
+            
                 <div class="form-row row">
                     <div class="col-lg-2 col-md-4">
-                        <label for="">Father Name</label>
+                        <label for="father_name">Father Name</label>
                         <span class="indc">:</span>
                     </div>
                     <div class="col-lg-4 col-md-8">
-                        <input type="text" placeholder="Enter Father Name" class="form-control form-control-sm">
+                        <input type="text" id="father_name" name="father_name" placeholder="Enter Father Name" class="form-control form-control-sm">
                     </div>
                     <div class="col-lg-2 col-md-4">
                         <label for="photoID">Your Photo:</label>
                         <span class="indc">:</span>
                     </div>
                     <div class="col-lg-4 col-md-8">
-                        <input type="file" id="photoID" name="photoID" class="form-control" accept="image/*"
-                            required onchange="previewImage(event)" />
+                        <input type="file" id="photoID" name="photo" class="form-control" accept="image/*" required>
                     </div>
                 </div>
-                <!-- <div class="form-row row">
-                    <div class="col-lg-2 col-md-4"></div>
-                    <div class="col-lg-4 col-md-8">
-                        <img id="imagePreview" src="#" alt="Preview" style="max-width: 100px; max-height: 100px; display: none;" />
-                    </div>
-                </div> -->
-
-
+            
                 <div class="form-row row">
                     <div class="col-lg-2 col-md-4">
-                        <label for="">Mother Name</label>
+                        <label for="mother_name">Mother Name</label>
                         <span class="indc">:</span>
                     </div>
                     <div class="col-lg-4 col-md-8">
-                        <input type="text" placeholder="Enter Mother Name" class="form-control form-control-sm">
+                        <input type="text" id="mother_name" name="mother_name" placeholder="Enter Mother Name" class="form-control form-control-sm">
                     </div>
-                    <div class="col-lg-2 col-md-4"></div>
-                    <div class="col-lg-4 col-md-8 d-flex align-items-center justify-content-start">
-                      <img id="imagePreview" src="#" alt="Preview" class="img-fluid" style="max-width: 100px; max-height: 100px; display: none;" />
-                  </div>
-                 
                     <div class="col-lg-2 col-md-4">
-                        <label for="initialDepositAmount">Initial Deposit Amount</label>
+                        <label for="initial_deposit_amount">Initial Deposit Amount</label>
                         <span class="indc">:</span>
                     </div>
                     <div class="col-lg-4 col-md-8">
-                        <input type="number" placeholder="Enter Initial Deposit Amount" id="initialDepositAmount"
-                            name="initialDepositAmount" class="form-control form-control-sm" required />
+                        <input type="number" id="initial_deposit_amount" name="initial_deposit_amount" placeholder="Enter Initial Deposit Amount" class="form-control form-control-sm" required>
                     </div>
                 </div>
+            
                 <div class="form-row row">
                     <div class="col-lg-2 col-md-4">
-                        <label for="nid">National ID(NID)</label>
+                        <label for="national_id">National ID(NID)</label>
                         <sup class="req">*</sup>
                         <span class="indc">:</span>
                     </div>
                     <div class="col-lg-4 col-md-8">
-                        <input type="text" id="nid" placeholder="Enter National ID Number"
-                            class="form-control form-control-sm" required>
+                        <input type="text" id="national_id" name="national_id" placeholder="Enter National ID Number" class="form-control form-control-sm" required>
                     </div>
-                    <div class="">  
-                      <div class="col-lg-4 col-md-8">
-                          <img id="imagePreview" src="#" alt="Preview" style="max-width: 100px; max-height: 100px; display: none;" />
-                      </div>
-                  </div>
-  
                     <div class="col-lg-2 col-md-4">
                         <label for="password">Password</label>
                         <sup class="req">*</sup>
                         <span class="indc">:</span>
                     </div>
                     <div class="col-lg-4 col-md-8">
-                        <input type="password" id="password" placeholder="Enter Password"
-                            class="form-control form-control-sm" required>
+                        <input type="password" id="password" name="password" placeholder="Enter Password" class="form-control form-control-sm" required>
                     </div>
                 </div>
-
-                <div class="form-row row">
-                    <div class="col-lg-2 col-md-4">
-                        <label for="employmentStatus" class="required">Employment Status:</label>
-                    </div>
-
-                    <div class="col-lg-4 col-md-8">
-                        <select id="employmentStatus" name="employmentStatus" class="form-control" required>
-                            <option value="">Select Employment Status</option>
-                            <option value="employed">Employed</option>
-                            <option value="selfEmployed">Self-Employed</option>
-                            <option value="unemployed">Unemployed</option>
-                            <option value="student">Student</option>
-                            <option value="retired">Retired</option>
-                        </select>
-                    </div>
-                     
-                    
-                </div>
-
+            
                 <div class="form-title row">
                     <h4>Contact Information</h4>
                 </div>
-
-                <div class="form-row row">
-                    <div class="col-lg-2 col-md-4">
-                        <label for="">Mobile Number</label>
-                        <sup class="req">*</sup>
-                        <span class="indc">:</span>
-                    </div>
-                    <div class="col-lg-4 col-md-8">
-                        <input type="text" placeholder="Enter Mobile Numbber" class="form-control form-control-sm">
-                    </div>
-                    <div class="col-lg-2 col-md-4">
-                        <label for="">Email Address</label>
-                        <sup class="req">*</sup>
-                        <span class="indc">:</span>
-                    </div>
-                    <div class="col-lg-4 col-md-8">
-                        <input type="text" placeholder="Enter Email Address"
-                            class="form-control form-control-sm">
-                    </div>
-                </div>
-
-                <div class="form-row row">
-                    <div class="col-lg-2 col-md-4">
-                        <label for="">City</label>
-                        <span class="indc">:</span>
-                    </div>
-                    <div class="col-lg-4 col-md-8">
-                        <input type="text" placeholder="Enter City" class="form-control form-control-sm">
-                    </div>
-                    <div class="col-lg-2 col-md-4">
-                        <label for="">State</label>
-                        <span class="indc">:</span>
-                    </div>
-                    <div class="col-lg-4 col-md-8">
-                        <input type="text" placeholder="Enter State" class="form-control form-control-sm">
-                    </div>
-                </div>
-
-                <div class="form-row row">
-                    <div class="col-lg-2 col-md-4">
-                        <label for="">Country</label>
-                        <span class="indc">:</span>
-                    </div>
-                    <div class="col-lg-4 col-md-8">
-                        <input type="text" placeholder="Enter Country" class="form-control form-control-sm">
-                    </div>
-                    <div class="col-lg-2 col-md-4">
-                        <label for="">Postal Code</label>
-                        <span class="indc">:</span>
-                    </div>
-                    <div class="col-lg-4 col-md-8">
-                        <input type="text" placeholder="Enter City" class="form-control form-control-sm">
-                    </div>
-                </div>
-
-                <div class="form-row row">
-                    <div class="col-lg-2 col-md-4">
-                        <label for="">Village Address</label>
-                        <span class="indc">:</span>
-                    </div>
-                    <div class="col-lg-4 col-md-8">
-                        <textarea type="text" rows="5" placeholder="Enter Full Address"
-                            class="form-control form-control-sm"></textarea>
-                    </div>
-                    <div class="col-lg-2 col-md-4">
-                        <label for="residentialAddress" class="required">Residential Address</label>
-                        <span class="indc">:</span>
-                    </div>
-                    <div class="col-lg-4 col-md-8">
-                        <textarea id="residentialAddress" class="form-control form-control-sm"
-                            name="residentialAddress" class="form-control" rows="5" required></textarea>
-                    </div>
-                </div>
-                <div class="form-row row">
-                  <div class="col-lg-2 col-md-4"></div>
-                  <div class="col-lg-4 col-md-4">
-                      <button class="btn btn-sm btn-primary">Submit Form</button>
-                  </div>
-                  <div class="col-lg-2 col-md-4"></div>
-                  <div class="col-lg-4 col-md-8"></div>
-              </div>
-          
             
+                <div class="form-row row">
+                    <div class="col-lg-2 col-md-4">
+                        <label for="mobile_number">Mobile Number</label>
+                        <sup class="req">*</sup>
+                        <span class="indc">:</span>
+                    </div>
+                    <div class="col-lg-4 col-md-8">
+                        <input type="text" id="mobile_number" name="mobile_number" placeholder="Enter Mobile Number" class="form-control form-control-sm" required>
+                    </div>
+                    <div class="col-lg-2 col-md-4">
+                        <label for="email_address">Email Address</label>
+                        <sup class="req">*</sup>
+                        <span class="indc">:</span>
+                    </div>
+                    <div class="col-lg-4 col-md-8">
+                        <input type="email" id="email_address" name="email_address" placeholder="Enter Email Address" class="form-control form-control-sm" required>
+                    </div>
+                </div>
+            
+                <div class="form-row row">
+                    <div class="col-lg-2 col-md-4">
+                        <label for="city">City</label>
+                        <span class="indc">:</span>
+                    </div>
+                    <div class="col-lg-4 col-md-8">
+                        <input type="text" id="city" name="city" placeholder="Enter City" class="form-control form-control-sm">
+                    </div>
+                    <div class="col-lg-2 col-md-4">
+                        <label for="state">State</label>
+                        <span class="indc">:</span>
+                    </div>
+                    <div class="col-lg-4 col-md-8">
+                        <input type="text" id="state" name="state" placeholder="Enter State" class="form-control form-control-sm">
+                    </div>
+                </div>
+            
+                <div class="form-row row">
+                    <div class="col-lg-2 col-md-4">
+                        <label for="country">Country</label>
+                        <span class="indc">:</span>
+                    </div>
+                    <div class="col-lg-4 col-md-8">
+                        <input type="text" id="country" name="country" placeholder="Enter Country" class="form-control form-control-sm">
+                    </div>
+                    <div class="col-lg-2 col-md-4">
+                        <label for="postal_Code">Postal Code</label>
+                        <span class="indc">:</span>
+                    </div>
+                    <div class="col-lg-4 col-md-8">
+                        <input type="text" id="postal_Code" name="postal_Code" placeholder="Enter Postal Code" class="form-control form-control-sm">
+                    </div>
+                </div>
+            
+                <div class="form-row row">
+                    <div class="col-lg-2 col-md-4">
+                        <label for="village_address">Village Address</label>
+                        <span class="indc">:</span>
+                    </div>
+                    <div class="col-lg-4 col-md-8">
+                        <textarea id="village_address" name="village_address" rows="5" placeholder="Enter Full Address" class="form-control form-control-sm"></textarea>
+                    </div>
+                    <div class="col-lg-2 col-md-4">
+                        <label for="residential_address">Residential Address</label>
+                        <sup class="req">*</sup>
+                        <span class="indc">:</span>
+                    </div>
+                    <div class="col-lg-4 col-md-8">
+                        <textarea id="residential_address" name="residential_address" rows="5" placeholder="Enter Residential Address" class="form-control form-control-sm" required></textarea>
+                    </div>
+                </div>
+            
+                <div class="form-row row">
+                    <div class="col-lg-2 col-md-4"></div>
+                    <div class="col-lg-4 col-md-4">
+                        <button type="submit" class="btn btn-sm btn-primary">Submit Form</button>
+                    </div>
+                </div>
             </form>
+            
         </div>
         
     </div>
     
    
-    <script>
-        function previewImage(event) {
-            const file = event.target.files[0];
-            const reader = new FileReader();
-
-            reader.onload = function () {
-                const imagePreview = document.getElementById('imagePreview');
-                if (imagePreview) {
-                    imagePreview.src = reader.result;
-                    imagePreview.style.display = 'block';
-                }
-            };
-
-            reader.readAsDataURL(file);
-        }
-
-        
-    function validateForm(event) {
-        const form = event.target;
-        
-        // Fetching all input elements inside the form
-        const inputs = form.querySelectorAll('input, select, textarea');
-        
-        // Flag to check if form is valid
-        let isValid = true;
-
-        inputs.forEach(input => {
-            // Check if input is required and empty
-            if (input.hasAttribute('required') && input.value.trim() === '') {
-                isValid = false;
-                // Add error class to input parent div or directly style it to highlight error
-                input.classList.add('error');
-                // You can also display an error message
-                // alert(`Please fill in ${input.getAttribute('placeholder')}`);
-            } else {
-                // Remove error class if previously added
-                input.classList.remove('error');
-            }
-
-            // Additional validation based on input type
-            if (input.hasAttribute('data-validation')) {
-                const validationType = input.getAttribute('data-validation');
-                const value = input.value.trim();
-
-                switch (validationType) {
-                    case 'number':
-                        if (!(/^\d+$/.test(value))) {
-                            isValid = false;
-                            input.classList.add('error');
-                            // You can also display an error message
-                            // alert(`Please enter only numbers in ${input.getAttribute('placeholder')}`);
-                        }
-                        break;
-                    case 'text':
-                        if (!(/^[A-Za-z\s]+$/.test(value))) {
-                            isValid = false;
-                            input.classList.add('error');
-                            // You can also display an error message
-                            // alert(`Please enter only text in ${input.getAttribute('placeholder')}`);
-                        }
-                        break;
-                    case 'email':
-                        if (!(/\S+@\S+\.\S+/.test(value))) {
-                            isValid = false;
-                            input.classList.add('error');
-                            // You can also display an error message
-                            // alert(`Please enter a valid email address in ${input.getAttribute('placeholder')}`);
-                        }
-                        break;
-                    default:
-                        break;
-                }
-            }
-        });
-
-        if (!isValid) {
-            // Prevent form submission if not valid
-            event.preventDefault();
-        }
-    }
-
-    </script>
-
+   
 
 
 </body>

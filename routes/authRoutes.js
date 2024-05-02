@@ -3,6 +3,10 @@ const router = express.Router();
 const passport = require('../config/passport'); // Import Passport configuration
 
 const authController = require('../controllers/authController');
+const userController = require('../controllers/userController'); // Import userController
+
+
+router.use(express.urlencoded({ extended: true }));
 
 // GET request to display login form
 router.get('/login', authController.getLogin);
@@ -29,6 +33,6 @@ router.post('/login', passport.authenticate('local', {
 });
   
 // POST request to handle registration form submission
-router.post('/register', authController.postRegister);
+router.post('/register', userController.register);
  
 module.exports = router;

@@ -1,30 +1,30 @@
-// Transaction model definition
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
+const User = require('./user');
 
 const Transaction = sequelize.define('Transaction', {
-    id: {
+    Id: {
         type: DataTypes.INTEGER,
         primaryKey: true,
         autoIncrement: true
     },
-    userId: {
+    user_id: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+    },
+    national_id: {
+        type: DataTypes.STRING,
+    },
+    amount: {
         type: DataTypes.INTEGER,
         allowNull: false
     },
-    amount: {
-        type: DataTypes.FLOAT,
-        allowNull: false
-    },
     type: {
-        type: DataTypes.ENUM('deposit', 'withdraw'),
+        type: DataTypes.ENUM('deposit', 'withdrawal'),
         allowNull: false
-    },
-    timestamp: {
-        type: DataTypes.DATE,
-        allowNull: false,
-        defaultValue: DataTypes.NOW
     }
+}, {
+    timestamps: true // Enable timestamps
 });
 
 module.exports = Transaction;
