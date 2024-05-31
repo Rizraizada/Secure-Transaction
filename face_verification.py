@@ -1,33 +1,25 @@
 import face_recognition
 from flask import Flask, request, jsonify
-import os
-import cv2
-from sqlalchemy import create_engine, Column, Integer, String, Text, Boolean, Enum
+from flask_cors import CORS
+import numpy as np
+from sqlalchemy import create_engine, Column, Integer, String
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
-from werkzeug.security import generate_password_hash, check_password_hash
-import secrets  # For generating secure random tokens
+from PIL import Image
+from io import BytesIO
+from config.database import engine  # Import the engine from your database config
+import requests
+import os
 
-# Database configuration (replace with your actual credentials)
-db_url = 'sql:///secure_transaction.db'  # Change to your database connection string
-engine = create_engine(db_url)
 Base = declarative_base()
 
-# User model with improved security (passwords are hashed)
+# User model without password hashing
 class User(Base):
     __tablename__ = 'users'
 
     id = Column(Integer, primary_key=True)
     username = Column(String(50), nullable=False, unique=True)
-    password_hash = Column(String(128), nullable=False)
-    photo = Column(String(255), nullable=False)  # Path to user's image
-
-    def set_password(self, password):
-        self.password_hash = generate_password_hash(password)
-
-    def verify_password(self, password):
-        return check_password_hash(self.password_hash, password)
-
+    photo = Column(String(255), nullable=False)  # Path to user's image or URL
 
 # Create database tables if they don't exist
 Base.metadata.create_all(engine)
@@ -37,62 +29,86 @@ Session = sessionmaker(bind=engine)
 session = Session()
 
 app = Flask(__name__)
-
+CORS(app)  # Enable CORS for all routes
 
 def load_known_encoding(username):
     """Loads the face encoding of the specified user from the database."""
-    user = session.query(User).filter_by(username=username).first()
-    if user and user.photo:
-        known_image_path = user.photo
-        known_image = face_recognition.load_image_file(known_image_path)
-        known_encoding = face_recognition.face_encodings(known_image)[0]
-        return known_encoding
-    else:
-        return None  # Handle case where user not found or no photo available
-
-
-@app.route('/verify', methods=['POST'])
-def verify_face():
-    # Validate user credentials (assuming they're sent in the request body)
     try:
-        username = request.json['username']
-        password = request.json['password']
-    except KeyError:
-        return jsonify({"error": "Missing username or password in request body"}), 400
+        user = session.query(User).filter_by(id=username).first()  # Changed to use user ID
+        if user and user.photo:
+            known_image_path = user.photo
 
-    user = session.query(User).filter_by(username=username).first()
-    if not user or not user.verify_password(password):
-        return jsonify({"error": "Invalid username or password"}), 401
+            # Check if the photo field is a URL
+            if known_image_path.startswith('http'):
+                # Download the image
+                response = requests.get(known_image_path)
+                response.raise_for_status()  # Raise an error for bad status codes
 
-    # Access webcam
-    cap = cv2.VideoCapture(0)  # 0 for default camera
+                # Save the image to a temporary file
+                temp_image_path = os.path.join('temp_images', f'{username}.png')
+                os.makedirs(os.path.dirname(temp_image_path), exist_ok=True)
 
-    while True:
-        ret, frame = cap.read()
+                with open(temp_image_path, 'wb') as f:
+                    f.write(response.content)
+
+                # Load the image using face_recognition
+                known_image = face_recognition.load_image_file(temp_image_path)
+            else:
+                # Load the image from a local path
+                known_image = face_recognition.load_image_file(known_image_path)
+
+            known_encoding = face_recognition.face_encodings(known_image)[0]
+            return known_encoding
+        else:
+            return None  # Handle case where user not found or no photo available
+    except Exception as e:
+        print(f"Error loading known encoding for {username}: {e}")
+        return None
+
+@app.route('/verify-face', methods=['POST'])
+def verify_face():
+    try:
+        username = request.args.get('username')
+        image_data = request.files['image']
+
+        # Log the received image data
+        print("Received image data:", image_data)
+
+        # Process the image data
+        image = Image.open(image_data.stream).convert('RGB')  # Ensure the image is in RGB format
+        image_np = np.array(image)
 
         # Detect faces in the frame
-        rgb_frame = frame[:, :, ::-1]  # Convert BGR to RGB for face_recognition
-        face_locations = face_recognition.face_locations(rgb_frame)
+        face_locations = face_recognition.face_locations(image_np)
 
-        # Process each detected face
-        for (top, right, bottom, left) in face_locations:
-            # Extract the face image from the frame
-            face_image = frame[top:bottom, left:right]
+        if not face_locations:
+            return jsonify({"status": "fail", "error": "No face detected"}), 400
 
-            # Encode the face
-            face_encoding = face_recognition.face_encodings(face_image)[0]
+        # Extract face encodings
+        face_encodings = face_recognition.face_encodings(image_np, face_locations)
 
-            # Try to find a matching user in the database
-            known_encoding = load_known_encoding(username)
+        if len(face_encodings) == 0:
+            return jsonify({"status": "fail", "error": "Face encoding failed"}), 400
 
-            if known_encoding is not None:
-                # Compare the face encoding to the known encoding
-                results = face_recognition.compare_faces([known_encoding], face_encoding)
+        face_encoding = face_encodings[0]
 
-                # Display results (optional)
-                cv2.rectangle(frame, (left, top), (right, bottom), (0, 0, 255), 2)
-                if results[0]:
-                    cv2.putText(frame, "Match", (left + 6, bottom - 6), cv2.FONT_HERSHEY_SIMPLEX,
-                                1, (0, 255, 0), 2)
-                else:
-                    cv2.putText(frame, "Not a Match", (left + 6, bottom - 6), cv
+        known_encoding = load_known_encoding(username)  # Load user's encoding from database
+
+        if known_encoding is None:
+            return jsonify({"status": "fail", "error": "User has no registered photo"}), 400
+
+        # Compare the face encoding with the known encoding
+        matches = face_recognition.compare_faces([known_encoding], face_encoding)
+
+        if matches[0]:
+            return jsonify({"status": "success", "message": "Face verified!"})
+        else:
+            return jsonify({"status": "fail", "error": "Face does not match registered user"})
+
+    except Exception as e:
+        # If an exception occurs, return an error response and log the error
+        print(f"Error during face verification: {e}")
+        return jsonify({"status": "error", "error": str(e)}), 500
+
+if __name__ == '__main__':
+    app.run(debug=True, port=5000)

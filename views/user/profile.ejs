@@ -81,13 +81,19 @@
       <!-- Sidebar user panel (optional) -->
       <div class="user-panel mt-3 pb-3 mb-3 d-flex">
         <div class="image">
-          <img src="/admin/uploads/1709235099956-31.jpg" alt="User Image">
+          <img src="<%= user.photo %>" alt="User Photo" />
+
         </div>
         <div class="info">
-          <a href="#" class="d-block"><%= user.username %></a>
-          
+            <a href="#" class="d-block"><%= user.username %></a>
         </div>
-      </div>
+    </div>
+    
+    <!-- Log user photo to the console -->
+    <script>
+        console.log("User photo:", '<%= user.photo %>');
+    </script>
+    
 
       <!-- SidebarSearch Form -->
  
@@ -172,34 +178,93 @@
                     </form>
                 </div>
             </div>
-        
+            
             <div class="col-md-6">
-                <div class="bg-success p-4 rounded ml-md-2">
-                    <h3 class="text-2xl">Please Withdraw</h3>
-                    <form id="withdraw-form" action="/withdraw" method="post"> <!-- Specify action and method -->
-                        <!-- Hidden input fields for user_id and national_id -->
-                        <input type="hidden" id="user-id" name="user_id" value="<%= user.id %>">
-                        <input type="hidden" id="national-id" name="national_id" value="<%= user.national_id %>">
-                        <!-- Withdraw input field -->
-                        <div class="mb-4">
-                            <input id="withdraw-input" class="form-control mb-2" type="number" name="withdraw_amount" placeholder="Withdraw">
-                            <button type="submit" class="btn btn-warning">Withdraw</button>
-                        </div>
-                    </form>
-                </div>
+              <div class="bg-success p-4 rounded ml-md-2">
+                <h3>Please Withdraw</h3>
+                <form id="withdraw-form" action="/withdraw" method="post">
+                  <input type="hidden" id="user-id" name="user_id" value="25">  <!-- Use correct user ID -->
+                  <input type="hidden" id="national-id" name="national_id" value="national_id_value">
+                  <div class="mb-4">
+                    <input id="withdraw-input" class="form-control mb-2" type="number" name="withdraw_amount" placeholder="Withdraw">
+                    <button type="button" id="verify-face-button" class="btn btn-warning">Verify Face and Withdraw</button>
+                  </div>
+                </form>
+              </div>
             </div>
-        </section>
-        
-        
-      </main>
-  </section>
-  
-    <!-- /.content -->
-  </div>
-  <!-- /.content-wrapper -->
+            
+            <video id="video" width="640" height="480" autoplay></video>
+            <canvas id="canvas" width="640" height="480" style="display: none;"></canvas>
+            
+            <script>
+              document.getElementById('verify-face-button').addEventListener('click', function() {
+                const video = document.getElementById('video');
+                const canvas = document.getElementById('canvas');
+                const context = canvas.getContext('2d');
+                const username = document.getElementById('user-id').value; // Use user-id as username
+            
+                // Access the device camera and stream to video element
+                navigator.mediaDevices.getUserMedia({ video: true })
+                  .then(stream => {
+                    video.srcObject = stream;
+                    video.onloadedmetadata = function() {
+                      video.play();
+                      setTimeout(function() {
+                        captureImage();
+                      }, 1000);
+                    };
+                  })
+                  .catch(err => {
+                    console.error('Error accessing webcam: ', err);
+                  });
+            
+                function captureImage() {
+                  context.drawImage(video, 0, 0, canvas.width, canvas.height);
+            
+                  // Capture image data from canvas as a blob
+                  canvas.toBlob(function(blob) {
+                    const formData = new FormData();
+                    formData.append('image', blob);
+            
+                    // Send POST request to backend
+                    fetch('http://localhost:5000/verify-face?username=' + encodeURIComponent(username), {
+                      method: 'POST',
+                      body: formData
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                      if (data.status === 'success') {
+                        document.getElementById('withdraw-form').submit();
+                      } else if (data.status === 'fail') {
+                        alert('Face verification failed: ' + data.error);
+                      } else {
+                        alert('An error occurred: ' + data.error);
+                      }
+                    })
+                    .catch(error => {
+                      console.error('Error:', error);
+                      alert('An error occurred while verifying your face. Please try again.');
+                    });
+                  }, 'image/png');
+                }
+              });
+            </script>
+            
+            
+          
+          
 
-  <!-- Control Sidebar -->
-  <aside class="control-sidebar control-sidebar-dark">
+</section>
+
+
+</main>
+</section>
+<!-- /.content -->
+</div>
+<!-- /.content-wrapper -->
+
+<!-- Control Sidebar -->
+<aside class="control-sidebar control-sidebar-dark">
     <!-- Control sidebar content goes here -->
   </aside>
   <!-- /.control-sidebar -->
