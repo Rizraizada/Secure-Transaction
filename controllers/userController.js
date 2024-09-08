@@ -8,10 +8,10 @@ const path = require('path');
 
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
-        cb(null, path.join(__dirname, '../public/uploads')); // Absolute path to the 'public/uploads' directory
+        cb(null, path.join(__dirname, '../public/uploads')); 
     },
     filename: function (req, file, cb) {
-        cb(null, Date.now() + '-' + file.originalname); // Unique filename
+        cb(null, Date.now() + '-' + file.originalname);
     }
 });
 
