@@ -5,8 +5,7 @@ exports.deposit = async (req, res) => {
     try {
         const { user_id, national_id, deposit_amount } = req.body;
 
-        // Execute raw SQL query to insert data into the 'transactions' table
-        await sequelize.query(
+         await sequelize.query(
             `INSERT INTO transactions (user_id, national_id, amount, type) VALUES (?, ?, ?, ?)`,
             {
                 replacements: [user_id, national_id, deposit_amount, 'deposit'],

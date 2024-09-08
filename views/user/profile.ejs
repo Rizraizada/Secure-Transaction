@@ -14,6 +14,8 @@
   <link rel="stylesheet" href="/admin/plugins/overlayScrollbars/css/OverlayScrollbars.min.css">
   <!-- Theme style -->
   <link rel="stylesheet" href="/admin/dist/css/adminlte.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/antd/4.22.0/antd.min.css">
+
 </head>
 <body class="hold-transition dark-mode sidebar-mini layout-fixed layout-navbar-fixed layout-footer-fixed">
 <div class="wrapper">
@@ -22,6 +24,7 @@
   <div class="preloader flex-column justify-content-center align-items-center">
     <img class="animation__wobble" src="/admin/dist/img/AdminLTELogo.png" alt="AdminLTELogo" height="60" width="60">
   </div>
+  
 
   <!-- Navbar -->
   <nav class="main-header navbar navbar-expand navbar-dark">
@@ -81,7 +84,7 @@
       <!-- Sidebar user panel (optional) -->
       <div class="user-panel mt-3 pb-3 mb-3 d-flex">
         <div class="image">
-          <img src="<%= user.photo %>" alt="User Photo" />
+          <img src="/<%= user.photo %>" alt="User Photo" class="img-circle elevation-2" style="width: 50px; height: 50px;">
 
         </div>
         <div class="info">
@@ -89,10 +92,8 @@
         </div>
     </div>
     
-    <!-- Log user photo to the console -->
-    <script>
-        console.log("User photo:", '<%= user.photo %>');
-    </script>
+    
+    
     
 
       <!-- SidebarSearch Form -->
@@ -101,20 +102,15 @@
       <nav class="mt-2">
         <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
           <li class="nav-item">
-            <a href="index2.html" class="nav-link">
+            <a href="/user/profile" class="nav-link">
               <i class="nav-icon fas fa-table"></i>
-              <p>
-                Dashboard
-               </p>
+              <p>Dashboard</p>
             </a>
           </li>
-
           <li class="nav-item">
-            <a href="index2.html" class="nav-link">
+            <a href="/user/transaction_list" class="nav-link">
               <i class="nav-icon fas fa-table"></i>
-              <p>
-                Recent Transaction
-               </p>
+              <p>Recent Transaction</p>
             </a>
           </li>
         </ul>
@@ -132,129 +128,122 @@
       </div><!-- /.container-fluid -->
     </div>
     <!-- /.content-header -->
-    
-    
-    
-    <!-- Main content -->
-    <section class="content">
-      <main class="container mt-5">
-          <!-- Balance and Transaction -->
-          <section class="row">
-              <div class="col-md-4">
-                  <div class="bg-primary p-4 rounded text-white">
-                      <h3 class="text-2xl">Deposit</h3>
-                      <h4 class="text-4xl">$<span id="deposit-total"></span></h4>
-                  </div>
-              </div>
-  
-              <div class="col-md-4">
-                  <div class="bg-warning p-4 rounded text-white">
-                      <h3 class="text-2xl">Withdraw</h3>
-                      <h4 class="text-4xl">$00</h4>
-                  </div>
-              </div>
-  
-              <div class="col-md-4">
-                  <div class="bg-success p-4 rounded text-white">
-                      <h3 class="text-2xl">Balance</h3>
-                      <h4 class="text-4xl"><%= user.initial_deposit_amount %><span id="balance-total"></span></h4>
-                  </div>
-              </div>
-          </section>
-          <!-- Deposit and Withdraw -->
-          <section class="row mt-4">
-            <div class="col-md-6">
-                <div class="bg-danger p-4 rounded">
-                    <h3 class="text-2xl">Please Deposit</h3>
-                    <form id="deposit-form" action="/deposit" method="post"> <!-- Specify action and method -->
-                        <!-- Hidden input fields for user_id and national_id -->
-                        <input type="hidden" id="user-id" name="user_id" value="<%= user.id %>">
-                        <input type="hidden" id="national-id" name="national_id" value="<%= user.national_id %>">
-                        <!-- Deposit input field -->
-                        <div class="mb-4">
-                            <input id="deposit-input" class="form-control mb-2" type="number" name="deposit_amount" placeholder="Deposit">
-                            <button type="submit" class="btn btn-warning">Deposit</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-            
-            <div class="col-md-6">
-              <div class="bg-success p-4 rounded ml-md-2">
-                <h3>Please Withdraw</h3>
-                <form id="withdraw-form" action="/withdraw" method="post">
-                  <input type="hidden" id="user-id" name="user_id" value="25">  <!-- Use correct user ID -->
-                  <input type="hidden" id="national-id" name="national_id" value="national_id_value">
-                  <div class="mb-4">
-                    <input id="withdraw-input" class="form-control mb-2" type="number" name="withdraw_amount" placeholder="Withdraw">
-                    <button type="button" id="verify-face-button" class="btn btn-warning">Verify Face and Withdraw</button>
-                  </div>
-                </form>
-              </div>
-            </div>
-            
-            <video id="video" width="640" height="480" autoplay></video>
-            <canvas id="canvas" width="640" height="480" style="display: none;"></canvas>
-            
-            <script>
-              document.getElementById('verify-face-button').addEventListener('click', function() {
-                const video = document.getElementById('video');
-                const canvas = document.getElementById('canvas');
-                const context = canvas.getContext('2d');
-                const username = document.getElementById('user-id').value; // Use user-id as username
-            
-                // Access the device camera and stream to video element
-                navigator.mediaDevices.getUserMedia({ video: true })
-                  .then(stream => {
-                    video.srcObject = stream;
-                    video.onloadedmetadata = function() {
-                      video.play();
-                      setTimeout(function() {
-                        captureImage();
-                      }, 1000);
-                    };
-                  })
-                  .catch(err => {
-                    console.error('Error accessing webcam: ', err);
-                  });
-            
-                function captureImage() {
-                  context.drawImage(video, 0, 0, canvas.width, canvas.height);
-            
-                  // Capture image data from canvas as a blob
-                  canvas.toBlob(function(blob) {
-                    const formData = new FormData();
-                    formData.append('image', blob);
-            
-                    // Send POST request to backend
-                    fetch('http://localhost:5000/verify-face?username=' + encodeURIComponent(username), {
-                      method: 'POST',
-                      body: formData
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                      if (data.status === 'success') {
-                        document.getElementById('withdraw-form').submit();
-                      } else if (data.status === 'fail') {
-                        alert('Face verification failed: ' + data.error);
-                      } else {
-                        alert('An error occurred: ' + data.error);
-                      }
-                    })
-                    .catch(error => {
-                      console.error('Error:', error);
-                      alert('An error occurred while verifying your face. Please try again.');
-                    });
-                  }, 'image/png');
-                }
-              });
-            </script>
-            
-            
-          
-          
 
+
+  
+    
+    
+ <!-- Main content -->
+<section class="content">
+  <main class="container mt-5">
+    <!-- Balance and Transaction -->
+    <section class="row">
+      <div class="col-md-4 mb-3">
+        <div class="bg-primary p-4 rounded text-white">
+          <h3 class="text-2xl">Deposit</h3>
+          <h4 class="text-4xl">$<span id="deposit-total"><%= totalDeposit %></span></h4>
+        </div>
+      </div>
+
+      <div class="col-md-4 mb-3">
+        <div class="bg-warning p-4 rounded text-white">
+          <h3 class="text-2xl">Withdraw</h3>
+          <h4 class="text-4xl">$<span id="withdraw-total"><%= totalWithdrawal %></span></h4>
+        </div>
+      </div>
+
+      <div class="col-md-4 mb-3">
+        <div class="bg-success p-4 rounded text-white">
+          <h3 class="text-2xl">Balance</h3>
+          <h4 class="text-4xl">$<span id="balance-total"><%= finalAmount %></span></h4>
+        </div>
+      </div>
+    </section>
+
+    <!-- Deposit and Withdraw -->
+    <section class="row mt-4">
+      <div class="col-md-6 mb-3">
+        <div class="bg-danger p-4 rounded text-white">
+          <h3 class="text-2xl">Please Deposit</h3>
+          <form id="deposit-form" action="/deposit" method="post">
+            <input type="hidden" id="user-id" name="user_id" value="<%= user.id %>">
+            <input type="hidden" id="national-id" name="national_id" value="<%= user.national_id %>">
+            <div class="mb-4">
+              <input id="deposit-input" class="form-control mb-2" type="number" name="deposit_amount" placeholder="Deposit" required>
+              <button type="submit" class="btn btn-warning">Deposit</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <div class="col-md-6 mb-3">
+        <div class="bg-success p-4 rounded text-white">
+          <h3 class="text-2xl">Please Withdraw</h3>
+          <form id="withdraw-form" action="/withdraw" method="post">
+            <input type="hidden" id="user-id" name="user_id" value="<%= user.id %>">
+            <input type="hidden" id="national-id" name="national_id" value="<%= user.national_id %>">
+            <div class="mb-4">
+              <input id="withdraw-input" class="form-control mb-2" type="number" name="withdraw_amount" placeholder="Withdraw" required>
+              <button type="button" id="verify-face-button" class="btn btn-warning">Verify Face and Withdraw</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </section>
+
+    <video id="video" width="640" height="480" autoplay class="mt-4"></video>
+    <canvas id="canvas" width="640" height="480" style="display: none;"></canvas>
+
+    <script>
+      document.getElementById('verify-face-button').addEventListener('click', function() {
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('canvas');
+        const context = canvas.getContext('2d');
+        const userId = document.getElementById('user-id').value;
+
+        // Access the device camera and stream to video element
+        navigator.mediaDevices.getUserMedia({ video: true })
+          .then(stream => {
+            video.srcObject = stream;
+            video.onloadedmetadata = function() {
+              video.play();
+              setTimeout(captureImage, 1000);
+            };
+          })
+          .catch(err => {
+            console.error('Error accessing webcam: ', err);
+          });
+
+        function captureImage() {
+          context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+          canvas.toBlob(function(blob) {
+            const formData = new FormData();
+            formData.append('image', blob);
+
+            fetch('http://localhost:5000/verify-face?user_id=' + encodeURIComponent(userId), {
+              method: 'POST',
+              body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+              if (data.status === 'success') {
+                document.getElementById('withdraw-form').submit();
+              } else {
+                alert('Face verification failed: ' + data.error);
+              }
+            })
+            .catch(error => {
+              console.error('Error:', error);
+              alert('An error occurred while verifying your face. Please try again.');
+            });
+          }, 'image/png');
+        }
+      });
+    </script>
+  </main>
 </section>
+
 
 
 </main>

@@ -1,9 +1,9 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
-const User = require('./user');
 
+// Define the Transaction model
 const Transaction = sequelize.define('Transaction', {
-    Id: {
+    id: { // Changed from Id to id
         type: DataTypes.INTEGER,
         primaryKey: true,
         autoIncrement: true
@@ -24,7 +24,13 @@ const Transaction = sequelize.define('Transaction', {
         allowNull: false
     }
 }, {
-    timestamps: true // Enable timestamps
+    timestamps: true
 });
+
+// Import User model here to avoid circular dependencies
+const User = require('./user'); 
+
+// Define associations
+Transaction.belongsTo(User, { foreignKey: 'user_id' });
 
 module.exports = Transaction;

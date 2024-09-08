@@ -1,7 +1,7 @@
 const express = require('express');
 const session = require('express-session');
 const passport = require('passport');
-const flash = require('express-flash'); // Import express-flash
+const flash = require('express-flash');
 const path = require('path');
 const bodyParser = require('body-parser');
 
@@ -11,10 +11,7 @@ const userRoutes = require('./routes/userRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 const transactionRoutes = require('./routes/transactionRoute');
 const transactionController = require('./controllers/transactionController');
-
- 
 const { handleError } = require('./middleware/errorMiddleware');
- const router = express.Router();
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -22,10 +19,14 @@ const PORT = process.env.PORT || 3001;
 // Set up view engine and static files
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
- app.use(express.static(path.join(__dirname, 'public')));
 
+// Serve static files from the 'public' directory
+app.use(express.static(path.join(__dirname, 'public')));
 
- app.use(bodyParser.json());
+// Serve static files specifically from the 'public/uploads' directory
+app.use('/uploads', express.static(path.join(__dirname, '../public/uploads')));
+
+app.use(bodyParser.json());
 
 // Middleware
 app.use(express.json());
@@ -37,33 +38,23 @@ app.use(session({
 }));
 app.use(passport.initialize());
 app.use(passport.session());
+app.use(flash());
 
- app.use(flash());
-
- app.get('/login', function(req, res) {
-    res.render('auth/login'); // Corrected path to match the directory structure
-});
-app.get('/register', function(req, res) {
-    res.render('auth/register'); // Corrected path to match the directory structure
-});
- app.post('/register', function(req, res) {
-    console.log('Request body:', req.body); // Log the request body
-    // Process the registration logic
-    res.render('auth/register');
-});
+// Routes
+app.get('/login', (req, res) => res.render('auth/login'));
+app.get('/register', (req, res) => res.render('auth/register'));
+app.post('/register', (req, res) => res.render('auth/register'));
 app.post('/deposit', transactionController.deposit);
 app.post('/withdraw', transactionController.withdraw);
 
-// Routes
 app.use('/auth', authRoutes);
 app.use('/user', userRoutes);
 app.use('/admin', adminRoutes);
 app.use('/transaction', transactionRoutes);
 
+app.use(handleError);
 
- app.use(handleError);
-
- sequelize.sync().then(() => {
+sequelize.sync().then(() => {
     app.listen(PORT, () => {
         console.log(`Server is running on port ${PORT}`);
     });

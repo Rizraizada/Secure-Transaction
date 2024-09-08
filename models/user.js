@@ -1,7 +1,4 @@
-// Import Sequelize
 const { DataTypes } = require('sequelize');
-
-// Import the Sequelize instance (sequelize) created in your configuration file
 const sequelize = require('../config/database');
 const bcrypt = require('bcryptjs');
 
@@ -12,7 +9,7 @@ const User = sequelize.define('User', {
       allowNull: false
     },
     last_name: {
-      type: DataTypes.STRING, // Add a comma here
+      type: DataTypes.STRING,
       allowNull: false
     },
     date_of_birth: {
@@ -24,12 +21,12 @@ const User = sequelize.define('User', {
       allowNull: false
     },
     father_name: {
-      type: DataTypes.STRING, // Add a comma here
-      allowNull: true // Set allowNull to true
+      type: DataTypes.STRING,
+      allowNull: true
     },
     mother_name: {
-      type: DataTypes.STRING, // Add a comma here
-      allowNull: true // Set allowNull to true
+      type: DataTypes.STRING,
+      allowNull: true
     },
     initial_deposit_amount: {
       type: DataTypes.INTEGER,
@@ -38,7 +35,7 @@ const User = sequelize.define('User', {
     national_id: {
       type: DataTypes.STRING,
       allowNull: false,
-      unique: true // Add a comma here
+      unique: true
     },
     password: {
       type: DataTypes.STRING,
@@ -54,24 +51,24 @@ const User = sequelize.define('User', {
       unique: true
     },
     city: {
-      type: DataTypes.STRING, // Add a comma here
-      allowNull: true // Set allowNull to true
+      type: DataTypes.STRING,
+      allowNull: true
     },
     state: {
-      type: DataTypes.STRING, // Add a comma here
-      allowNull: true // Set allowNull to true
+      type: DataTypes.STRING,
+      allowNull: true
     },
     country: {
-      type: DataTypes.STRING, // Add a comma here
-      allowNull: true // Set allowNull to true
+      type: DataTypes.STRING,
+      allowNull: true
     },
     postal_code: {
-      type: DataTypes.STRING, // Add a comma here
-      allowNull: true // Set allowNull to true
+      type: DataTypes.STRING,
+      allowNull: true
     },
     village_address: {
-      type: DataTypes.TEXT, // Add a comma here
-      allowNull: true // Set allowNull to true
+      type: DataTypes.TEXT,
+      allowNull: true
     },
     residential_address: {
       type: DataTypes.TEXT,
@@ -79,21 +76,20 @@ const User = sequelize.define('User', {
     },
     photo: {
       type: DataTypes.STRING,
-      allowNull: false // Set allowNull to true
+      allowNull: true
     },
     role: {
       type: DataTypes.ENUM('user', 'admin'),
       defaultValue: 'user'
     }
-  });
+});
 
 // Hash password before saving to the database
-User.beforeCreate(async (user, options) => {
+User.beforeCreate(async (user) => {
     if (user && user.password) {
         const salt = await bcrypt.genSalt(10);
         user.password = await bcrypt.hash(user.password, salt);
     }
 });
 
-// Export the User model
 module.exports = User;
