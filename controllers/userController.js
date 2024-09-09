@@ -1,35 +1,32 @@
 const User = require('../models/user');
-const Transaction = require('../models/transaction'); // Corrected import
-// const { generateNotificationScript } = require('../helpers/notificationHelper');
-
-
+const Transaction = require('../models/transaction');
 const multer = require('multer');
 const path = require('path');
 
+// Configure multer for file uploads
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
-        cb(null, path.join(__dirname, '../public/uploads')); 
+        cb(null, path.join(__dirname, '../public/uploads'));
     },
     filename: function (req, file, cb) {
         cb(null, Date.now() + '-' + file.originalname);
     }
 });
 
-
 const upload = multer({
     storage: storage,
-    limits: { fileSize: 1000000 } 
-}).single('photo'); 
+    limits: { fileSize: 1000000 } // Limit file size to 1MB
+}).single('photo');
 
+// Controller to handle profile view
 exports.profile = async (req, res) => {
     try {
-         const user = req.user;
-         user.photo = user.photo ? user.photo.replace('public/', '') : null;
+        const user = req.user;
+        user.photo = user.photo ? user.photo.replace('public/', '') : null;
 
-        
-         const transactions = await Transaction.findAll({ where: { user_id: user.id } });
+        const transactions = await Transaction.findAll({ where: { user_id: user.id } });
 
-         let totalDeposit = 0;
+        let totalDeposit = 0;
         let totalWithdrawal = 0;
 
         transactions.forEach(transaction => {
@@ -40,16 +37,17 @@ exports.profile = async (req, res) => {
             }
         });
 
-         const initialDeposit = user.initial_deposit_amount || 0;
+        const initialDeposit = user.initial_deposit_amount || 0;
         const finalAmount = initialDeposit + totalDeposit - totalWithdrawal;
 
         // Render the profile view with user and transaction data
-        res.render('user/profile', { 
-            user, 
+        res.render('user/profile', {
+            user,
             transactions,
             totalDeposit,
             totalWithdrawal,
-            finalAmount 
+            finalAmount,
+            message: req.query.message || '' // Provide default empty string
         });
 
     } catch (error) {
@@ -58,7 +56,7 @@ exports.profile = async (req, res) => {
     }
 };
 
-
+// Controller to handle transaction list
 exports.list = async (req, res) => {
     try {
         const user = req.user;
@@ -75,9 +73,7 @@ exports.list = async (req, res) => {
     }
 };
 
-
-
-
+// Controller to handle user registration
 exports.register = async (req, res) => {
     try {
         upload(req, res, async (err) => {
@@ -86,8 +82,7 @@ exports.register = async (req, res) => {
                 return res.status(500).send(`An error occurred during file upload: ${err.message}`);
             }
 
-            console.log('Uploaded file:', req.file);
-
+ 
             const {
                 username, last_name, date_of_birth, gender,
                 father_name, mother_name, initial_deposit_amount,
@@ -96,7 +91,6 @@ exports.register = async (req, res) => {
                 residential_address
             } = req.body;
 
-            // Replace public path with a relative path
             let photoPath = req.file ? req.file.path.replace(path.join(__dirname, '../public/'), '') : null;
 
             console.log('Photo path:', photoPath);
@@ -107,11 +101,10 @@ exports.register = async (req, res) => {
                 national_id, password, mobile_number, email_address,
                 city, state, country, postal_code: postal_Code,
                 village_address, residential_address,
-                photo: photoPath // Store relative path
+                photo: photoPath
             });
 
-            console.log('New user created:', newUser);
-
+ 
             res.redirect('/login');
         });
     } catch (error) {

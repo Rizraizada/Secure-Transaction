@@ -6,4 +6,7 @@ const { isAdmin } = require('../middleware/authMiddleware');
 
 router.get('/dashboard', isAdmin, adminController.dashboard);
 
+router.get('/client_list', isAdmin, adminController.clientList);
+
+
 module.exports = router;

@@ -8,7 +8,6 @@ router.post('/deposit', transactionController.deposit);
 
  
 router.post('/withdraw',  transactionController.withdraw);
-// router.post('/delete/:id', transactionController.deleteTransaction);
-
+ 
 
 module.exports = router;

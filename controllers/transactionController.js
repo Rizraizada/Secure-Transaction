@@ -5,7 +5,7 @@ exports.deposit = async (req, res) => {
     try {
         const { user_id, national_id, deposit_amount } = req.body;
 
-         await sequelize.query(
+        await sequelize.query(
             `INSERT INTO transactions (user_id, national_id, amount, type) VALUES (?, ?, ?, ?)`,
             {
                 replacements: [user_id, national_id, deposit_amount, 'deposit'],
@@ -13,19 +13,19 @@ exports.deposit = async (req, res) => {
             }
         );
 
-        res.status(200).json({ message: 'Deposit transaction completed successfully' });
+        res.redirect('/user/profile?type=deposit&message=Deposit%20transaction%20completed%20successfully');
+
     } catch (error) {
         console.error('Error in deposit transaction:', error);
         res.status(500).json({ message: 'Internal server error' });
     }
 };
 
-
+// Withdraw route
 exports.withdraw = async (req, res) => {
     try {
         const { user_id, national_id, withdraw_amount } = req.body;
 
-        // Execute raw SQL query to insert data into the 'transactions' table
         await sequelize.query(
             `INSERT INTO transactions (user_id, national_id, amount, type) VALUES (?, ?, ?, ?)`,
             {
@@ -34,7 +34,7 @@ exports.withdraw = async (req, res) => {
             }
         );
 
-        res.status(200).json({ message: 'Withdrawal transaction completed successfully' });
+        res.redirect('/user/profile?type=withdrawal&message=withdrawal%20transaction%20completed%20successfully');
     } catch (error) {
         console.error('Error in withdrawal transaction:', error);
         res.status(500).json({ message: 'Internal server error' });

@@ -20,17 +20,7 @@ router.post('/login', authController.login);
 router.get('/logout', authController.logout);
 router.post('/logout', authController.logout); // Add this line
 
-router.post('/login', passport.authenticate('local', {
-    failureRedirect: '/login',
-    failureFlash: true
-}), (req, res) => {
-    // Check user role and redirect accordingly
-    if (req.user.role === 'admin') {
-        res.redirect('/admin/dashboard');
-    } else {
-        res.redirect('/user/profile');
-    }
-});
+ 
   
 // POST request to handle registration form submission
 router.post('/register', userController.register);
